@@ -65,7 +65,7 @@ export default function App() {
     if (animating.includes(id)) return;
     setAnimating((prev) => [...prev, id]);
 
-    // Remove task after full animation
+    // Remove task after animation finishes
     setTimeout(() => {
       setTasks((prev) => prev.filter((t) => t.id !== id));
     }, 2500);
@@ -73,7 +73,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 overflow-hidden">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
         🏡 Home Maintenance Checklist
       </h1>
 
@@ -99,15 +99,15 @@ export default function App() {
                     ease: [0.17, 0.67, 0.83, 0.97],
                   },
                 }}
-                className={`mb-4 flex items-start space-x-3 p-5 rounded-xl border shadow-sm ${
+                className={`mb-4 flex items-start space-x-3 p-5 rounded-xl border shadow-sm transition-colors duration-500 ${
                   isAnimating
-                    ? "bg-green-50 border-green-300"
+                    ? "bg-green-50 border-green-400"
                     : "bg-white border-gray-200"
                 }`}
               >
                 {/* Custom animated checkbox */}
                 <motion.div
-                  className="relative mt-1 flex items-center justify-center"
+                  className="relative mt-1 flex items-center justify-center cursor-pointer"
                   onClick={() => handleCheck(task.id)}
                   initial={false}
                   animate={{
@@ -115,39 +115,63 @@ export default function App() {
                   }}
                   transition={{ duration: 0.3 }}
                 >
-                  {/* Base box */}
-                  <div className="w-5 h-5 border-2 border-gray-400 rounded-md relative overflow-hidden cursor-pointer bg-white" />
-
-                  {/* Loader border animation */}
-                  {isAnimating && (
-                    <motion.div
-                      className="absolute inset-0 border-2 border-green-600 rounded-md"
-                      initial={{ clipPath: "inset(0 100% 0 0)" }}
-                      animate={{ clipPath: "inset(0 0% 0 0)" }}
-                      transition={{
-                        duration: 1,
-                        ease: "easeInOut",
-                      }}
+                  {/* Base checkbox border */}
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    {/* Static border */}
+                    <rect
+                      x="2"
+                      y="2"
+                      width="20"
+                      height="20"
+                      rx="4"
+                      ry="4"
+                      fill="#fff"
+                      stroke="#9ca3af"
+                      strokeWidth="2.6"
                     />
-                  )}
 
-                  {/* Checkmark after loader */}
-                  {isAnimating && (
-                    <motion.svg
-                      className="absolute w-3 h-3 text-green-700"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ delay: 1, duration: 0.4 }}
-                    >
-                      <path d="M4 12l5 5L20 7" />
-                    </motion.svg>
-                  )}
+                    {/* Animated tracing border */}
+                    {isAnimating && (
+                      <motion.rect
+                        x="2"
+                        y="2"
+                        width="20"
+                        height="20"
+                        rx="4"
+                        ry="4"
+                        fill="none"
+                        stroke="#16a34a"
+                        strokeWidth="2.6"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 1, ease: "easeInOut" }}
+                      />
+                    )}
+
+                    {/* Tick animation */}
+                    {isAnimating && (
+                      <motion.path
+                        d="M6 12.5 L10 16.5 L18 7.5"
+                        stroke="#16a34a"
+                        strokeWidth="2.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{
+                          delay: 1.05,
+                          duration: 0.55,
+                          ease: "easeInOut",
+                        }}
+                      />
+                    )}
+                  </svg>
                 </motion.div>
 
                 {/* Text and animation */}
