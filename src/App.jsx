@@ -12,6 +12,25 @@ const initialTasks = [
   { id: 8, title: "Test and clean the furnace", "description": "Tune-up and safety check to prevent breakdowns and CO risk.", property: "Our Home" },
 ];
 
+// Helper function to generate a rounded rectangle path string starting from the left side.
+// This is essential for controlling the pathLength animation start point.
+const getRoundedRectPath = (x, y, w, h, r) => {
+  // Start at the left-middle edge: (x, y + h/2)
+  return `
+    M ${x} ${y + h / 2} 
+    L ${x} ${y + r}                 
+    A ${r} ${r} 0 0 1 ${x + r} ${y} 
+    L ${x + w - r} ${y}             
+    A ${r} ${r} 0 0 1 ${x + w} ${y + r} 
+    L ${x + w} ${y + h - r}         
+    A ${r} ${r} 0 0 1 ${x + w - r} ${y + h} 
+    L ${x + r} ${y + h}             
+    A ${r} ${r} 0 0 1 ${x} ${y + h - r} 
+    L ${x} ${y + h / 2} 
+    Z
+  `;
+};
+
 export default function App() {
   const [tasks, setTasks] = useState(initialTasks);
   const [animating, setAnimating] = useState([]);
@@ -23,22 +42,31 @@ export default function App() {
     // Total time before removal (2000ms)
     setTimeout(() => {
       setTasks((prev) => prev.filter((t) => t.id !== id));
-      // Remove id from animating after removal to clean up state
       setAnimating((prev) => prev.filter((animId) => animId !== id));
     }, 2000); 
   };
+  
+  // Define trace path dimensions for consistency
+  const traceX = 2.5; // X-coordinate for the outer trace path
+  const traceY = 2.5; // Y-coordinate for the outer trace path
+  const traceW = 19; // Width for the outer trace path
+  const traceH = 19; // Height for the outer trace path
+  const traceR = 4.5; // Radius for the outer trace path
+
+  const pathD = getRoundedRectPath(traceX, traceY, traceW, traceH, traceR);
 
   return (
     <div className="min-h-screen bg-[#f2f4f7] flex flex-col items-center py-10 overflow-hidden">
-      <div className="w-full max-w-2xl px-4">
+      <div className="w-full max-w-2xl px-4 font-sans">
+        
         <AnimatePresence>
           {tasks.map((task) => {
             const isAnimating = animating.includes(task.id);
 
-            // Define the box shadow to simulate a press-in effect on check
+            // Define the box shadow to simulate a press-in 3D effect on check
             const shadowEffect = isAnimating 
-              ? "inset 0 2px 4px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px -2px rgba(0, 0, 0, 0.05)" // Pressed look
-              : "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)"; // Normal shadow
+              ? "inset 0 2px 6px 0 rgba(0, 0, 0, 0.15), inset 0 2px 4px -2px rgba(0, 0, 0, 0.1)" // Pressed look
+              : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06)"; // Normal lifted shadow
 
             return (
               <motion.div
@@ -48,33 +76,31 @@ export default function App() {
                 animate={{
                   opacity: 1,
                   y: 0,
-                  scale: isAnimating ? [1, 1.15] : 1, 
-                  backgroundColor: isAnimating ? ["#e8ebf7", "#8ebd9cff"] : "#e8ebf7",
-                  // 🟢 NEW: Add 3D box shadow animation
+                  scale: isAnimating ? [1, 1.25] : 1, 
+                  backgroundColor: isAnimating ? ["#e4e4f0ff", "#8ebd9cff"] : "#e4e4f0ff", 
                   boxShadow: shadowEffect,
                   transition: {
-                    scale: { delay: 1, duration: 0.4, ease: "easeOut" }, 
-                    backgroundColor: { delay: 1, duration: 0.4, ease: "easeOut" },
-                    boxShadow: { duration: 0.4, ease: "easeOut" } // Shadow animates quickly on press
+                    scale: { delay: 1.2, duration: 0.4, ease: "easeOut" }, 
+                    backgroundColor: { delay: 1.2, duration: 0.4, ease: "easeOut" },
+                    boxShadow: { duration: 0.2, ease: "easeOut" } 
                   },
                 }}
                 exit={{
-                  y: "100vh",
+                  y: '120vh', 
                   opacity: 0,
-                  transition: { duration: 0.8, ease: "easeInOut" },
+                  transition: { delay:.8, duration: 0.8, ease: "easeInOut" },
                 }}
-                // Removed the default Tailwind shadow class since we animate it dynamically
-                className="mb-4 flex items-center justify-between p-5 rounded-xl border border-gray-300" 
+                className="mb-4 flex items-center justify-between p-5 rounded-xl border border-gray-200" 
               >
                 {/* ✅ Left section: Checkbox + Text */}
-                <div className="flex items-start space-x-3 flex-1">
+                <div className="flex items-start space-x-4 flex-1">
                   <motion.div
-                    className="relative mt-1 flex items-center justify-center cursor-pointer"
+                    className="relative mt-1 flex items-center justify-center cursor-pointer flex-shrink-0"
                     onClick={() => handleCheck(task.id)}
                     initial={false}
                   >
                     <svg
-                      className="w-5 h-5"
+                      className="w-6 h-6" 
                       viewBox="0 0 24 24"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
@@ -87,40 +113,35 @@ export default function App() {
                         </filter>
                       </defs>
 
-                      {/* Static Checkbox (20x20 at x=2, y=2) */}
+                      {/* 2. Static Checkbox (Inner box: x=4, w=16) */}
                       <rect
-                        x="2"
-                        y="2"
-                        width="20"
-                        height="20"
-                        rx="4"
-                        ry="4"
+                        x="4"    
+                        y="4"    
+                        width="16" 
+                        height="16" 
+                        rx="3"   
+                        ry="3"
                         fill="#fff"
-                        stroke="#000"
-                        strokeWidth="2.2"
+                        stroke="#4b5563" 
+                        strokeWidth="2"
                       />
 
-                      {/* 🟢 Animated Outer Shadow Trace Rectangle and Tick */}
+                      {/* 3. 🟢 Animated Outer Shadow Trace Path (x=2.5, w=19) - STARTS DRAWING FROM LEFT-MIDDLE */}
                       {isAnimating && (
                         <>
-                          <motion.rect
-                            x="0" 
-                            y="0"
-                            width="24"
-                            height="24"
-                            rx="6" 
-                            ry="6" 
+                          <motion.path
+                            d={pathD} // Path starting from the mid-left side
                             fill="none" 
                             filter="url(#shadowTrace)" 
                             stroke="#3c6e71" 
-                            strokeWidth="4"
+                            strokeWidth="2.5" 
                             initial={{ pathLength: 0, opacity: 1 }}
                             animate={{ 
-                              pathLength: [0, 1], 
+                              pathLength: [0,1 ,1.5], 
                               opacity: [1, 0]     
                             }}
                             transition={{ 
-                              pathLength: { duration: 0.8, ease: "easeInOut" },
+                              pathLength: { duration: 1.2, ease: "easeInOut" },
                               opacity: { delay: 0.8, duration: 0.3 }
                             }}
                           />
@@ -140,22 +161,19 @@ export default function App() {
                   </motion.div>
 
                   {/* Text content */}
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <motion.div
-                      className="relative inline-block"
+                      className="relative inline-block text-lg"
                       style={{
-                        position: "relative",
-                        display: "inline-block",
                         color: isAnimating ? "#ffffff" : "#1f2937", 
                         fontWeight: 600,
-                        fontSize: "1rem",
-                        transition: "color 0.3s ease 0.7s", 
+                        transition: "color 0.3s ease 1.5s", 
                       }}
                     >
                       {task.title}
                       {/* Strikethrough line */}
                       <motion.span
-                        className="absolute left-0 top-1/2 h-[2px]"
+                        className="absolute left-0 top-1/2 h-[2px] rounded-full"
                         style={{
                           backgroundColor: isAnimating ? "#ffffff" : "#5b8f73", 
                         }}
@@ -164,7 +182,7 @@ export default function App() {
                           width: isAnimating ? "100%" : "0%",
                         }}
                         transition={{
-                          delay: 0.7,
+                          delay: 1.5,
                           duration: 0.5,
                           ease: "easeInOut",
                         }}
@@ -175,7 +193,7 @@ export default function App() {
                       className={`text-sm mt-1 transition-colors duration-300`}
                       style={{
                         color: isAnimating ? "#ffffff" : "#4b5563",
-                        transition: "color 0.3s ease 0.7s",
+                        transition: "color 0.3s ease 1.5s",
                       }}
                     >
                       {task.description}
@@ -184,7 +202,7 @@ export default function App() {
                       className={`text-xs mt-1`}
                       style={{
                         color: isAnimating ? "#ffffff" : "#6b7280",
-                        transition: "color 0.3s ease 0.7s",
+                        transition: "color 0.3s ease 1.5s",
                       }}
                     >
                       Property: <span className="font-medium">{task.property}</span>
@@ -192,16 +210,26 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* ✅ Right section: Logo (Restored) */}
+               {/* ✅ Right section: Logo (Restored) */}
+
                 <motion.img
+
                   src="https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg"
+
                   alt="Logo"
+
                   className="w-4 h-4 rounded-full ml-4 object-cover opacity-25"
+
                   animate={{
+
                     scale: isAnimating ? 1.4 : 1,
-                    opacity: isAnimating ? 1 : 0.85,
+
+                    opacity: isAnimating ? .25 : .35,
+
                   }}
-                  transition={{ delay: 0.7, duration: 0.4 }} 
+
+                  transition={{ delay: 0.7, duration: 0.4 }}
+
                 />
               </motion.div>
             );
