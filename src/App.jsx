@@ -4,12 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 const initialTasks = [
   { id: 1, title: "Brush walls and tile line", description: "Prevents algae buildup and staining.", property: "Our Home" },
   { id: 2, title: "Check and adjust chlorine/bromine levels", description: "Maintain sanitizer levels to prevent algae and bacteria.", property: "Our Home" },
-  { id: 3, title: "Skim debris from surface", description: "Remove leaves and floating debris to keep pool clean.", property: "Our Home" },
-  { id: 4, title: "Test and balance pH/alkalinity", description: "Keeps water safe, prevents scaling/corrosion.", property: "Our Home" },
-  { id: 5, title: "Vacuum pool floor", description: "Removes dirt and sediment from bottom.", property: "Our Home" },
-  { id: 6, title: "Inspect roof for damaged shingles", description: "Find and fix damaged shingles to avoid leaks under snow load.", property: "Our Home" },
-  { id: 7, title: "Winterize sprinklers", description: "Shut off water and blowout to prevent frozen pipe bursts.", property: "Our Home" },
-  { id: 8, title: "Test and clean the furnace", description: "Tune-up and safety check to prevent breakdowns and CO risk.", property: "Our Home" },
+  { id: 3, title: "Skim debris from surface", "description": "Remove leaves and floating debris to keep pool clean.", property: "Our Home" },
+  { id: 4, title: "Test and balance pH/alkalinity", "description": "Keeps water safe, prevents scaling/corrosion.", property: "Our Home" },
+  { id: 5, title: "Vacuum pool floor", "description": "Removes dirt and sediment from bottom.", property: "Our Home" },
+  { id: 6, title: "Inspect roof for damaged shingles", "description": "Find and fix damaged shingles to avoid leaks under snow load.", property: "Our Home" },
+  { id: 7, title: "Winterize sprinklers", "description": "Shut off water and blowout to prevent frozen pipe bursts.", property: "Our Home" },
+  { id: 8, title: "Test and clean the furnace", "description": "Tune-up and safety check to prevent breakdowns and CO risk.", property: "Our Home" },
 ];
 
 export default function App() {
@@ -30,14 +30,15 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#f2f4f7] flex flex-col items-center py-10 overflow-hidden">
-      {/* <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-        🏡 Home Maintenance Checklist
-      </h1> */}
-
       <div className="w-full max-w-2xl px-4">
         <AnimatePresence>
           {tasks.map((task) => {
             const isAnimating = animating.includes(task.id);
+
+            // Define the box shadow to simulate a press-in effect on check
+            const shadowEffect = isAnimating 
+              ? "inset 0 2px 4px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px -2px rgba(0, 0, 0, 0.05)" // Pressed look
+              : "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)"; // Normal shadow
 
             return (
               <motion.div
@@ -49,9 +50,12 @@ export default function App() {
                   y: 0,
                   scale: isAnimating ? [1, 1.15] : 1, 
                   backgroundColor: isAnimating ? ["#e8ebf7", "#8ebd9cff"] : "#e8ebf7",
+                  // 🟢 NEW: Add 3D box shadow animation
+                  boxShadow: shadowEffect,
                   transition: {
                     scale: { delay: 1, duration: 0.4, ease: "easeOut" }, 
-                    backgroundColor: { delay: 1, duration: 0.4, ease: "easeOut" }, 
+                    backgroundColor: { delay: 1, duration: 0.4, ease: "easeOut" },
+                    boxShadow: { duration: 0.4, ease: "easeOut" } // Shadow animates quickly on press
                   },
                 }}
                 exit={{
@@ -59,7 +63,8 @@ export default function App() {
                   opacity: 0,
                   transition: { duration: 0.8, ease: "easeInOut" },
                 }}
-                className="mb-4 flex items-center justify-between p-5 rounded-xl border border-gray-300 shadow-sm"
+                // Removed the default Tailwind shadow class since we animate it dynamically
+                className="mb-4 flex items-center justify-between p-5 rounded-xl border border-gray-300" 
               >
                 {/* ✅ Left section: Checkbox + Text */}
                 <div className="flex items-start space-x-3 flex-1">
@@ -74,6 +79,14 @@ export default function App() {
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
+                      {/* 1. Define the Gaussian Blur filter for the shadow trace effect */}
+                      <defs>
+                        <filter id="shadowTrace">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="1" />
+                            <feComposite operator="in" in2="SourceAlpha" />
+                        </filter>
+                      </defs>
+
                       {/* Static Checkbox (20x20 at x=2, y=2) */}
                       <rect
                         x="2"
@@ -87,28 +100,28 @@ export default function App() {
                         strokeWidth="2.2"
                       />
 
-                      {/* 🟢 Animated Outer Tracing Rectangle (24x24 at x=0, y=0) and Tick */}
+                      {/* 🟢 Animated Outer Shadow Trace Rectangle and Tick */}
                       {isAnimating && (
                         <>
                           <motion.rect
-                            x="0"         // Start near the edge of the SVG viewbox
+                            x="0" 
                             y="0"
-                            width="24"    // Max width of the SVG viewbox
+                            width="24"
                             height="24"
-                            rx="6"        // Slightly more rounded corners
+                            rx="6" 
                             ry="6" 
                             fill="none" 
-                            // Thin stroke to resemble a subtle shadow trace
-                            stroke="#5b8f73" 
-                            strokeWidth="6" 
+                            filter="url(#shadowTrace)" 
+                            stroke="#3c6e71" 
+                            strokeWidth="4"
                             initial={{ pathLength: 0, opacity: 1 }}
                             animate={{ 
-                              pathLength: [0, 1], // The tracing motion
-                              opacity: [1, 0]     // Fade out after tracing completes
+                              pathLength: [0, 1], 
+                              opacity: [1, 0]     
                             }}
                             transition={{ 
                               pathLength: { duration: 0.8, ease: "easeInOut" },
-                              opacity: { delay: 0.8, duration: 0.3 } // Fades out between 0.8s and 1.1s
+                              opacity: { delay: 0.8, duration: 0.3 }
                             }}
                           />
                           <motion.path
