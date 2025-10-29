@@ -23,6 +23,8 @@ export default function App() {
     // Total time before removal (2000ms)
     setTimeout(() => {
       setTasks((prev) => prev.filter((t) => t.id !== id));
+      // Remove id from animating after removal to clean up state
+      setAnimating((prev) => prev.filter((animId) => animId !== id));
     }, 2000); 
   };
 
@@ -46,7 +48,6 @@ export default function App() {
                   opacity: 1,
                   y: 0,
                   scale: isAnimating ? [1, 1.15] : 1, 
-                  // UPDATED: Lighter shade of green for the active background
                   backgroundColor: isAnimating ? ["#e8ebf7", "#8ebd9cff"] : "#e8ebf7",
                   transition: {
                     scale: { delay: 1, duration: 0.4, ease: "easeOut" }, 
@@ -58,7 +59,6 @@ export default function App() {
                   opacity: 0,
                   transition: { duration: 0.8, ease: "easeInOut" },
                 }}
-                // UPDATED: Added a light gray border class
                 className="mb-4 flex items-center justify-between p-5 rounded-xl border border-gray-300 shadow-sm"
               >
                 {/* ✅ Left section: Checkbox + Text */}
@@ -74,7 +74,7 @@ export default function App() {
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      {/* Static Checkbox */}
+                      {/* Static Checkbox (20x20 at x=2, y=2) */}
                       <rect
                         x="2"
                         y="2"
@@ -87,21 +87,38 @@ export default function App() {
                         strokeWidth="2.2"
                       />
 
-                      {/* Animated Tracing Border and Tick */}
+                      {/* 🟢 Animated Outer Tracing Rectangle (24x24 at x=0, y=0) and Tick */}
                       {isAnimating && (
                         <>
                           <motion.rect
-                            x="0.5" y="0.5" width="23" height="23" rx="5" ry="5" fill="none" 
-                            stroke="#5b8f73" strokeWidth="8" 
-                            initial={{ pathLength: 0 }}
-                            animate={{ pathLength: 1 }}
-                            transition={{ duration: 0.8, ease: "easeInOut" }}
+                            x="0"         // Start near the edge of the SVG viewbox
+                            y="0"
+                            width="24"    // Max width of the SVG viewbox
+                            height="24"
+                            rx="6"        // Slightly more rounded corners
+                            ry="6" 
+                            fill="none" 
+                            // Thin stroke to resemble a subtle shadow trace
+                            stroke="#5b8f73" 
+                            strokeWidth="6" 
+                            initial={{ pathLength: 0, opacity: 1 }}
+                            animate={{ 
+                              pathLength: [0, 1], // The tracing motion
+                              opacity: [1, 0]     // Fade out after tracing completes
+                            }}
+                            transition={{ 
+                              pathLength: { duration: 0.8, ease: "easeInOut" },
+                              opacity: { delay: 0.8, duration: 0.3 } // Fades out between 0.8s and 1.1s
+                            }}
                           />
                           <motion.path
                             d="M6 12.5 L10 16.5 L18 7.5"
                             stroke="#5b8f73" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" fill="none"
-                            initial={{ pathLength: 0 }}
-                            animate={{ pathLength: 1 }}
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            animate={{ 
+                              pathLength: 1,
+                              opacity: 1 
+                            }}
                             transition={{ delay: 0.1, duration: .6, ease: "easeInOut" }}
                           />
                         </>
