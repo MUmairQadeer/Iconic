@@ -28,9 +28,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#f2f4f7] flex flex-col items-center py-10 overflow-hidden">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+      {/* <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
         🏡 Home Maintenance Checklist
-      </h1>
+      </h1> */}
 
       <div className="w-full max-w-2xl px-4">
         <AnimatePresence>
@@ -47,10 +47,10 @@ export default function App() {
                   y: 0,
                   scale: isAnimating ? [1, 1.15] : 1, 
                   // UPDATED: Lighter shade of green for the active background
-                  backgroundColor: isAnimating ? ["#e8ebf7", "#71c98c"] : "#e8ebf7",
+                  backgroundColor: isAnimating ? ["#e8ebf7", "#8ebd9cff"] : "#e8ebf7",
                   transition: {
-                    scale: { delay: 0.7, duration: 0.4, ease: "easeOut" }, 
-                    backgroundColor: { delay: 0.7, duration: 0.4, ease: "easeOut" }, 
+                    scale: { delay: 1, duration: 0.4, ease: "easeOut" }, 
+                    backgroundColor: { delay: 1, duration: 0.4, ease: "easeOut" }, 
                   },
                 }}
                 exit={{
@@ -92,17 +92,17 @@ export default function App() {
                         <>
                           <motion.rect
                             x="0.5" y="0.5" width="23" height="23" rx="5" ry="5" fill="none" 
-                            stroke="#5b8f73" strokeWidth="3" 
+                            stroke="#5b8f73" strokeWidth="8" 
                             initial={{ pathLength: 0 }}
                             animate={{ pathLength: 1 }}
-                            transition={{ duration: 0.5, ease: "easeInOut" }}
+                            transition={{ duration: 0.8, ease: "easeInOut" }}
                           />
                           <motion.path
                             d="M6 12.5 L10 16.5 L18 7.5"
                             stroke="#5b8f73" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" fill="none"
                             initial={{ pathLength: 0 }}
                             animate={{ pathLength: 1 }}
-                            transition={{ delay: 0.1, duration: 0.5, ease: "easeInOut" }}
+                            transition={{ delay: 0.1, duration: .6, ease: "easeInOut" }}
                           />
                         </>
                       )}
